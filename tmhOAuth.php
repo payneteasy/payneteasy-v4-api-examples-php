@@ -16,6 +16,10 @@ defined('__DIR__') or define('__DIR__', dirname(__FILE__));
 class tmhOAuth {
   const VERSION = '0.8.5';
   var $response = array();
+  var $buffer;
+  var $config;
+  var $request_settings;
+  var $metrics;
 
   /**
    * Creates a new tmhOAuth object
@@ -69,11 +73,11 @@ class tmhOAuth {
         // for security this should always be set to true.
         'use_ssl'                    => true,
 
-        // you can get the latest cacert.pem from here http://curl.haxx.se/ca/cacert.pem
-        // if you're getting HTTP 0 responses, check cacert.pem exists and is readable
-        // without it curl won't be able to create an SSL connection
-        'curl_cainfo'                => __DIR__ . DIRECTORY_SEPARATOR . 'cacert.pem',
-        'curl_capath'                => __DIR__,
+        // false: use the CA certificates of the operating system.
+        // Set a path to a CA bundle file (curl_cainfo) or directory (curl_capath)
+        // only if the system store is not available.
+        'curl_cainfo'                => false,
+        'curl_capath'                => false,
 
         // in some cases (very very odd ones) the SSL version must be set manually.
         // unless you know why your are changing this, you should leave it as false
@@ -134,14 +138,13 @@ class tmhOAuth {
    * Generates a random OAuth nonce.
    * If 'force_nonce' is false a nonce will be generated, otherwise the value of '$this->config['force_nonce']' will be used.
    *
-   * @param string $length how many characters the nonce should be before MD5 hashing. default 12
-   * @param string $include_time whether to include time at the beginning of the nonce. default true
+   * @param string $length not used, kept for compatibility
+   * @param string $include_time not used, kept for compatibility
    * @return $nonce as a string
    */
   private function nonce($length=12, $include_time=true) {
     if ($this->config['force_nonce'] === false) {
-      $prefix = $include_time ? microtime() : '';
-      return md5(substr($prefix . uniqid(), 0, $length));
+      return bin2hex(random_bytes(16));
     } else {
       return $this->config['force_nonce'];
     }
