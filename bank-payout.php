@@ -26,17 +26,15 @@
  * It is supported by the included library (tmhOAuth). The latest version of
  * this library may be obtained at https://github.com/themattharris/tmhOAuth
  *
- * Note that to work with https URLs, tmhOAuth requires cacert.pem to be present
- * in the current directory (and PaynetEasy servers are only accessible using
- * https). We ship cacert.pem file with our examples, but it may get outdated.
- * You can always obtain actual cacert.pem from
- * http://curl.haxx.se/ca/cacert.pem
- * If you're getting HTTP 0 responses, please check that cacert.pem exists,
- * readable and is not outdated.
+ * PaynetEasy servers are only accessible using https. tmhOAuth uses the CA
+ * certificates of the operating system. If you're getting HTTP 0 responses,
+ * check that the system CA certificates are installed, or set 'curl_cainfo'
+ * to the path of an up-to-date CA bundle.
  *
  * Private key is expected to be stored in a file; it must be in PEM format.
  * The strength of this RSA key must be at least 2048 bits.
- * An example of such a file is in test-private-key.pem
+ * test-private-key.pem is only an example: generate your own key and keep it
+ * outside the web root. Its path can be set in PAYNETEASY_PRIVATE_KEY_FILE.
  *
  */
 
@@ -48,7 +46,7 @@ include 'tmhOAuth.php';
 $serverHost = 'sandbox.payneteasy.com';
 $endpointId = 1; // *replace with your endpointId*
 $merchantLogin = '<your-merchant-login>';
-$private_key_pem = file_get_contents('test-private-key.pem');
+$private_key_pem = file_get_contents(getenv('PAYNETEASY_PRIVATE_KEY_FILE') ?: 'test-private-key.pem');
 
 $oauth = new tmhOAuth();
 $oauth->reconfigure(array(
